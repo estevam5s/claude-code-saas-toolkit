@@ -1,0 +1,10 @@
+{
+  "management_token": "sbp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "project_url": "https://your-ref.supabase.co",
+  "ref": "your-ref",
+  "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "service_role": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "prefix": "meuapp_",
+  "log_table": "cron_log",
+  "registry_table": "cron_job_registry"
+}

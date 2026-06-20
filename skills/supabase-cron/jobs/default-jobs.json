@@ -1,0 +1,15 @@
+{
+  "comment": "Jobs padrão (espelham cron/scripts do PyTrack). prefix é aplicado a cada job pelo setup. sql usa $$...$$ implícito (o setup embrulha). Use {{LOG}} como nome da tabela de log.",
+  "jobs": [
+    { "num": 1, "name": "6h_heartbeat", "schedule": "0 */6 * * *", "description": "heartbeat e métricas periódicas", "sql": "insert into {{LOG}}(num, job_name, description) values (1, '{{PREFIX}}6h_heartbeat', 'heartbeat e métricas periódicas')" },
+    { "num": 2, "name": "daily_2am", "schedule": "0 2 * * *", "description": "backup e limpeza de dados temporários", "sql": "insert into {{LOG}}(num, job_name, description) values (2, '{{PREFIX}}daily_2am', 'backup e limpeza de dados temporários')" },
+    { "num": 3, "name": "10min_queue", "schedule": "*/10 * * * *", "description": "processamento de filas e status", "sql": "insert into {{LOG}}(num, job_name, description) values (3, '{{PREFIX}}10min_queue', 'processamento de filas e status')" },
+    { "num": 4, "name": "hourly_sync", "schedule": "0 * * * *", "description": "sincronização e atualização de dashboards", "sql": "insert into {{LOG}}(num, job_name, description) values (4, '{{PREFIX}}hourly_sync', 'sincronização e atualização de dashboards')" },
+    { "num": 5, "name": "weekly_report", "schedule": "0 3 * * 1", "description": "relatórios semanais e consolidação", "sql": "insert into {{LOG}}(num, job_name, description) values (5, '{{PREFIX}}weekly_report', 'relatórios semanais e consolidação')" },
+    { "num": 6, "name": "monthly_close", "schedule": "0 0 1 * *", "description": "fechamento mensal e arquivamento", "sql": "insert into {{LOG}}(num, job_name, description) values (6, '{{PREFIX}}monthly_close', 'fechamento mensal e arquivamento')" },
+    { "num": 7, "name": "daily_cleanup", "schedule": "0 1 * * *", "description": "limpeza de logs > 90 dias", "sql": "delete from {{LOG}} where ran_at < now() - interval '90 days'; insert into {{LOG}}(num, job_name, description) values (7, '{{PREFIX}}daily_cleanup', 'limpeza de dados antigos e logs')" },
+    { "num": 8, "name": "daily_backup", "schedule": "0 4 * * *", "description": "backup automático do banco", "sql": "insert into {{LOG}}(num, job_name, description) values (8, '{{PREFIX}}daily_backup', 'backup automático do banco')" },
+    { "num": 9, "name": "weekly_reindex", "schedule": "0 4 * * 0", "description": "reindexação e otimização (ANALYZE)", "sql": "analyze; insert into {{LOG}}(num, job_name, description) values (9, '{{PREFIX}}weekly_reindex', 'reindexação e otimização do banco')" },
+    { "num": 10, "name": "batch_3x_daily", "schedule": "0 9,15,21 * * *", "description": "processamento em lote 3x/dia", "sql": "insert into {{LOG}}(num, job_name, description) values (10, '{{PREFIX}}batch_3x_daily', 'processamento em lote')" }
+  ]
+}
