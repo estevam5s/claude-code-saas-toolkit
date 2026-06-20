@@ -1,0 +1,80 @@
+name: Validate skills
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sintaxe dos scripts JS/MJS (node --check)
+        run: |
+          set -e
+          fail=0
+          while IFS= read -r f; do
+            if node --check "$f"; then
+              echo "ok  $f"
+            else
+              echo "ERRO de sintaxe: $f"; fail=1
+            fi
+          done < <(find skills -type f \( -name '*.mjs' -o -name '*.js' \) -not -path '*/node_modules/*')
+          exit $fail
+
+      - name: JSON válido (todos os .json, exceto exemplos com placeholders)
+        run: |
+          set -e
+          fail=0
+          while IFS= read -r f; do
+            if node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"; then
+              echo "ok  $f"
+            else
+              echo "JSON inválido: $f"; fail=1
+            fi
+          done < <(find skills -type f -name '*.json' -not -path '*/node_modules/*')
+          exit $fail
+
+      - name: SQL básico (balanceamento e final com ;)
+        run: |
+          set -e
+          fail=0
+          while IFS= read -r f; do
+            opens=$(grep -o '(' "$f" | wc -l | tr -d ' ')
+            closes=$(grep -o ')' "$f" | wc -l | tr -d ' ')
+            if [ "$opens" != "$closes" ]; then
+              echo "Parênteses desbalanceados ($opens vs $closes): $f"; fail=1
+            else
+              echo "ok  $f"
+            fi
+          done < <(find skills -type f -name '*.sql')
+          exit $fail
+
+      - name: Guard de segredos (não deve haver chaves reais)
+        run: |
+          if grep -rIlE 'sbp_[a-f0-9]{40}|rk_live_[A-Za-z0-9]{40,}|sk_live_[A-Za-z0-9]{40,}|ghp_[A-Za-z0-9]{36}' \
+              --include='*.json' --include='*.mjs' --include='*.js' --include='*.md' --include='*.ts' \
+              . | grep -v node_modules; then
+            echo "::error::Possível segredo real commitado."
+            exit 1
+          fi
+          echo "Nenhum segredo real detectado."
+
+      - name: Estrutura das skills (SKILL.md presente)
+        run: |
+          set -e
+          fail=0
+          for d in skills/*/; do
+            if [ -f "${d}SKILL.md" ]; then
+              echo "ok  ${d}SKILL.md"
+            else
+              echo "Faltando SKILL.md em $d"; fail=1
+            fi
+          done
+          exit $fail

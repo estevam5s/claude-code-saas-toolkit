@@ -1,5 +1,7 @@
 # Claude Code — SaaS Spec-Driven Toolkit
 
+[![Validate skills](https://github.com/estevam5s/claude-code-saas-toolkit/actions/workflows/validate-skills.yml/badge.svg)](https://github.com/estevam5s/claude-code-saas-toolkit/actions/workflows/validate-skills.yml)
+
 Conjunto de **skills do Claude Code** para transformar qualquer projeto em um **SaaS completo, funcional e seguro** — usando *spec-driven development*: especificar antes de implementar.
 
 > Testado live (e2e) em vários SaaS reais: billing com Stripe (checkout + webhook que ativa o plano), Supabase (schema + RLS + triggers + seed), painel admin, segurança e cron jobs.
