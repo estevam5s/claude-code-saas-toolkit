@@ -1,0 +1,35 @@
+{
+  "appName": "meu-saas",
+  "siteUrl": "https://meu-saas.vercel.app",
+  "stripe": {
+    "secretKey": "rk_live_ou_sk_live_COLE_AQUI",
+    "trialDays": 7,
+    "currency": "brl",
+    "locale": "pt-BR"
+  },
+  "supabase": {
+    "url": "https://SEU_REF.supabase.co",
+    "anonKey": "eyJ...ANON_KEY",
+    "serviceRole": "eyJ...SERVICE_ROLE_KEY",
+    "accessToken": "sbp_COLE_SEU_TOKEN_AQUI",
+    "projectRef": "ref_do_projeto (derivado da url se omitido)",
+    "schema": "public"
+  },
+  "admin": {
+    "email": "contato@estevamsouza.com.br",
+    "password": "TROQUE_ESTA_SENHA"
+  },
+  "webhook": {
+    "path": "/api/webhook",
+    "events": [
+      "checkout.session.completed",
+      "customer.subscription.created",
+      "customer.subscription.updated",
+      "customer.subscription.deleted",
+      "invoice.paid",
+      "invoice.payment_succeeded",
+      "invoice.payment_failed",
+      "charge.refunded"
+    ]
+  }
+}

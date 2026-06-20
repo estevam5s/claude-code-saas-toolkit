@@ -1,0 +1,7 @@
+# Segredos e artefatos gerados — NUNCA commitar
+config.json
+plans.json
+plans.generated.json
+*.env
+.env*
+output.json

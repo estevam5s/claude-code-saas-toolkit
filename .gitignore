@@ -1,0 +1,9 @@
+node_modules/
+config.json
+plans.generated.json
+plans.json
+.env
+.env.*
+*.local
+.vercel
+.DS_Store

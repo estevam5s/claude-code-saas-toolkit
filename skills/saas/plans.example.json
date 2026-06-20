@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "free",
+    "name": "Grátis",
+    "description": "Para começar e testar sem custo.",
+    "billingType": "free",
+    "monthlyPrice": 0,
+    "yearlyPrice": 0,
+    "lifetimePrice": 0,
+    "includedUsers": 1,
+    "highlight": false,
+    "sortOrder": 1,
+    "cta": "Começar grátis",
+    "limits": { "usuarios": 1, "registros": 50, "exportacoes": 1 },
+    "features": ["1 usuário", "Até 50 registros", "Recursos básicos", "Suporte por FAQ"]
+  },
+  {
+    "slug": "pro",
+    "name": "Pro",
+    "description": "Para quem precisa de tudo num só lugar.",
+    "billingType": "recurring",
+    "monthlyPrice": 49.9,
+    "yearlyPrice": 499.0,
+    "lifetimePrice": 0,
+    "includedUsers": 10,
+    "highlight": true,
+    "sortOrder": 2,
+    "cta": "Assinar Pro",
+    "limits": { "usuarios": 10, "registros": 5000, "exportacoes": 100 },
+    "features": ["Tudo do Grátis", "Até 10 usuários", "5.000 registros", "Relatórios avançados", "Suporte prioritário"]
+  },
+  {
+    "slug": "vitalicio",
+    "name": "Vitalício",
+    "description": "Pagamento único, sem mensalidade.",
+    "billingType": "lifetime",
+    "monthlyPrice": 0,
+    "yearlyPrice": 0,
+    "lifetimePrice": 1997.0,
+    "includedUsers": 50,
+    "highlight": false,
+    "sortOrder": 3,
+    "cta": "Comprar vitalício",
+    "limits": { "usuarios": 50, "registros": 100000, "exportacoes": 1000 },
+    "features": ["Tudo do Pro", "Pagamento único", "Até 50 usuários", "Prioridade no roadmap"]
+  }
+]
