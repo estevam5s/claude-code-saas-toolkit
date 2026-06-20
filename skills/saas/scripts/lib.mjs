@@ -6,12 +6,49 @@ import { dirname, join } from 'node:path'
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
 
+// Parser simples de .env (KEY=VALUE, ignora comentários e linhas vazias).
+function parseEnv(text) {
+  const out = {}
+  for (const raw of text.split('\n')) {
+    const line = raw.trim()
+    if (!line || line.startsWith('#')) continue
+    const i = line.indexOf('=')
+    if (i < 0) continue
+    out[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^["']|["']$/g, '')
+  }
+  return out
+}
+
+// Monta o cfg a partir de um .env (procura no ROOT da skill e no cwd do projeto).
+function configFromEnv() {
+  for (const dir of [ROOT, process.cwd()]) {
+    const p = join(dir, '.env')
+    if (!existsSync(p)) continue
+    const e = parseEnv(readFileSync(p, 'utf8'))
+    if (!e.STRIPE_SECRET_KEY || !e.SUPABASE_ACCESS_TOKEN) continue
+    return {
+      appName: e.APP_NAME || 'meu-saas',
+      siteUrl: e.SITE_URL || 'https://meu-saas.vercel.app',
+      stripe: { secretKey: e.STRIPE_SECRET_KEY, trialDays: Number(e.TRIAL_DAYS || 7), currency: e.CURRENCY || 'brl', locale: e.LOCALE || 'pt-BR' },
+      supabase: { url: e.SUPABASE_URL, anonKey: e.SUPABASE_ANON_KEY, serviceRole: e.SUPABASE_SERVICE_ROLE, accessToken: e.SUPABASE_ACCESS_TOKEN, schema: 'public' },
+      admin: { email: e.ADMIN_EMAIL, password: e.ADMIN_PASSWORD },
+      allowedOrigins: e.ALLOWED_ORIGINS || '',
+      webhook: { path: '/api/webhook', events: ['checkout.session.completed', 'customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted', 'invoice.paid', 'invoice.payment_succeeded', 'invoice.payment_failed', 'charge.refunded'] },
+    }
+  }
+  return null
+}
+
 export function loadConfig() {
   const p = join(ROOT, 'config.json')
-  if (!existsSync(p)) {
-    fail(`config.json não encontrado. Copie config.example.json → config.json e preencha (Stripe key + Supabase token).`)
+  // 1) config.json tem prioridade; 2) senão, monta a partir do .env.
+  let cfg
+  if (existsSync(p)) {
+    cfg = JSON.parse(readFileSync(p, 'utf8'))
+  } else {
+    cfg = configFromEnv()
+    if (!cfg) fail('Nem config.json nem .env encontrados. Copie .env.example → .env (ou config.example.json → config.json) e preencha as chaves.')
   }
-  const cfg = JSON.parse(readFileSync(p, 'utf8'))
   if (!cfg.stripe?.secretKey || cfg.stripe.secretKey.includes('COLE')) fail('config.json: stripe.secretKey não preenchida.')
   if (!cfg.supabase?.accessToken || cfg.supabase.accessToken.includes('COLE')) fail('config.json: supabase.accessToken não preenchido.')
   // projectRef pode ser derivado da supabase.url (https://<ref>.supabase.co)
