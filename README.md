@@ -23,9 +23,25 @@ Conjunto de **skills do Claude Code** para transformar qualquer projeto em um **
 - **Stripe:** `secret/restricted key`.
 - **Planos:** quantos e quais. **Admin:** e-mail/senha. **siteUrl** (Vercel).
 
+## Fluxo (do pedido ao deploy)
+
+```mermaid
+flowchart TD
+    A[Usuário instala UI/UX Pro Max + preenche .env] --> B[Pede: usar spec-driven]
+    B --> C{INTAKE — Claude faz o questionário}
+    C -->|confirma resumo| D[Fase 1 · plano-preco.md → plans.json]
+    D --> E[Fase 2 · /saas: Stripe produtos+preços+webhook · Supabase schema+RLS+seed+admin]
+    E --> F[Fase 3 · seguranca-informacao: rate-limit, CORS, brute force, RBAC, headers]
+    F --> G[Fase 4-5 · UI/UX Pro Max: site + dashboard + admin 18 módulos + hero 3D + SEO/OG]
+    G --> H[Fase 6 · supabase-cron: backups, métricas, logs]
+    H --> I[Fase 7 · GitHub + Vercel + smoke-test ✅]
+```
+
+Documentos: **[GUIA-PASSO-A-PASSO.md](GUIA-PASSO-A-PASSO.md)** (4 cenários) · **[INTAKE.md](INTAKE.md)** (questionário) · **[EXEMPLO-INTAKE.md](EXEMPLO-INTAKE.md)** (caso preenchido) · **[spec-driven-development.md](spec-driven-development.md)** (Fases 0→7).
+
 ## Como instalar como skills do Claude Code
 
-Copie as pastas de `skills/` para `~/.claude/skills/` (global) ou `.claude/skills/` (por projeto). Cada skill tem seu `SKILL.md` com instruções e `config.example.json` (copie para `config.json` — **gitignored**, nunca commite chaves).
+Copie as pastas de `skills/` para `~/.claude/skills/` (global) ou `.claude/skills/` (por projeto). Cada skill tem seu `SKILL.md`. Para credenciais, copie **`skills/saas/.env.example` → `.env`** e preencha (as skills leem do `.env` automaticamente) — **gitignored**, nunca commite chaves.
 
 ## Segurança
 
