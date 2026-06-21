@@ -82,7 +82,14 @@ export function resolveStripeAccount(cfg, name) {
     return { name: 'default', label: '(conta única)', secretKey, publishableKey: s.publishableKey, mode: secretKey.includes('_test_') ? 'test' : 'live' }
   }
   const argAcct = (process.argv.find((a) => a.startsWith('--account=')) || '').split('=')[1]
-  const pick = name || process.env.SAAS_ACCOUNT || argAcct || s.defaultAccount || Object.keys(s.accounts)[0]
+  let pick = name || process.env.SAAS_ACCOUNT || argAcct || s.defaultAccount || Object.keys(s.accounts)[0]
+  // aliases por posição: "conta 1"/"conta1"/"1" → 1ª conta; "conta 2"/"2" → 2ª, etc.
+  const m = String(pick).trim().toLowerCase().match(/^(?:conta[\s-]*)?(\d+)$/)
+  if (m) {
+    const keys = Object.keys(s.accounts)
+    const idx = Number(m[1]) - 1
+    if (keys[idx]) pick = keys[idx]
+  }
   const a = s.accounts[pick]
   if (!a) fail(`Conta Stripe "${pick}" não existe. Disponíveis: ${Object.keys(s.accounts).join(', ')}.`)
   if (!a.secretKey || a.secretKey.includes('COLE')) fail(`config.json: stripe.accounts.${pick}.secretKey não preenchida.`)
