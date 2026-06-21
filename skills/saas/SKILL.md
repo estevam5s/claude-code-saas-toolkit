@@ -17,7 +17,20 @@ Baseado numa implementação **testada live e2e** (trial 7d → sync de assinatu
 
 Copie `config.example.json` → `config.json` e preencha. **`config.json` é gitignored — nunca é commitado.**
 
-- `stripe.secretKey` — sua API key da Stripe. Pode ser `sk_live_…`/`sk_test_…` (acesso total) ou uma **restricted key** `rk_live_…`. Para a skill funcionar inteira, a restricted key precisa de **write** em: Products, Prices, Webhook Endpoints, Customers, Checkout Sessions, Coupons. Se faltar escopo, o script para com 403 indicando qual permissão liberar.
+- `stripe.accounts` — **multi-conta** (recomendado): mapa `{ "<nome>": { label, secretKey, publishableKey, mode } }` + `stripe.defaultAccount`. Cada chave pode ser `sk_live_…`/`sk_test_…` ou **restricted** `rk_live_…` (precisa de **write** em Products, Prices, Webhook Endpoints, Customers, Checkout Sessions, Coupons). Compatível com o formato antigo de conta única `stripe.secretKey`.
+
+### Múltiplas contas Stripe (separar empresas)
+
+Defina cada empresa em `stripe.accounts` e escolha qual usar:
+
+```bash
+node scripts/verify.mjs                            # usa stripe.defaultAccount
+node scripts/setup-stripe.mjs --account=linkium    # usa a conta "linkium"
+SAAS_ACCOUNT=linkium node scripts/run-all.mjs       # via variável de ambiente
+```
+
+**Transparência obrigatória:** todo script imprime no início **qual conta e qual chave (mascarada)** está usando — ex.: `🏦 Conta Stripe: Linkium (empresa nova) [linkium] · TEST 🧪`. Ao operar pelo `/saas`, **sempre diga ao usuário qual conta e qual chave serão usadas antes de criar produtos/cobranças**, distinguindo **LIVE** de **TEST**.
+
 - `supabase.accessToken` — Personal Access Token do Supabase (`sbp_…`), em https://supabase.com/dashboard/account/tokens.
 - `supabase.projectRef` — o ref do projeto (ex.: `jiszhmiavuxfdoxsyewm`), na URL do dashboard.
 - `siteUrl` — URL pública do app (ex.: `https://meu-saas.vercel.app`) — usada no `return_url`/`webhook`.

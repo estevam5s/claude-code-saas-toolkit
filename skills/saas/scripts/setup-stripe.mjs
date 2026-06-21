@@ -1,10 +1,12 @@
 // Cria produtos, preços e webhook no Stripe. Idempotente por metadata.plan_slug.
 // Gera plans.generated.json (planos + price IDs) e imprime o STRIPE_WEBHOOK_SECRET.
-import { loadConfig, loadPlans, saveJson, stripe, step, ok, info, fail } from './lib.mjs'
+import { loadConfig, loadPlans, saveJson, resolveStripeAccount, announceAccount, stripe, step, ok, info, fail } from './lib.mjs'
 
 const cfg = loadConfig()
 const { plans, from } = loadPlans()
-const sk = cfg.stripe.secretKey
+const acctCfg = resolveStripeAccount(cfg)
+announceAccount(acctCfg)
+const sk = acctCfg.secretKey
 const currency = cfg.stripe.currency || 'brl'
 info(`Usando planos de ${from} (${plans.length})`)
 

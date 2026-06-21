@@ -49,7 +49,10 @@ export function loadConfig() {
     cfg = configFromEnv()
     if (!cfg) fail('Nem config.json nem .env encontrados. Copie .env.example → .env (ou config.example.json → config.json) e preencha as chaves.')
   }
-  if (!cfg.stripe?.secretKey || cfg.stripe.secretKey.includes('COLE')) fail('config.json: stripe.secretKey não preenchida.')
+  // aceita conta única (stripe.secretKey) OU multi-conta (stripe.accounts)
+  const hasSingle = cfg.stripe?.secretKey && !cfg.stripe.secretKey.includes('COLE')
+  const hasMulti = cfg.stripe?.accounts && Object.keys(cfg.stripe.accounts).length > 0
+  if (!hasSingle && !hasMulti) fail('config.json: defina stripe.secretKey OU stripe.accounts.')
   if (!cfg.supabase?.accessToken || cfg.supabase.accessToken.includes('COLE')) fail('config.json: supabase.accessToken não preenchido.')
   // projectRef pode ser derivado da supabase.url (https://<ref>.supabase.co)
   if ((!cfg.supabase.projectRef || cfg.supabase.projectRef.includes('ref_do')) && cfg.supabase.url) {
@@ -60,6 +63,37 @@ export function loadConfig() {
   if (!cfg.supabase.url) cfg.supabase.url = `https://${cfg.supabase.projectRef}.supabase.co`
   if (!cfg.siteUrl) fail('config.json: siteUrl não preenchido.')
   return cfg
+}
+
+// Mascara uma chave para exibição segura (nunca imprima a chave inteira).
+export function maskKey(k = '') {
+  if (!k) return '(vazia)'
+  return k.length <= 16 ? k.slice(0, 6) + '…' : `${k.slice(0, 12)}…${k.slice(-4)}`
+}
+
+// Resolve QUAL conta Stripe usar (multi-conta) e devolve {name,label,secretKey,publishableKey,mode}.
+// Ordem: argumento explícito → env SAAS_ACCOUNT → --account=<n> no argv → stripe.defaultAccount → 1ª conta.
+// Compatível com config de conta única (stripe.secretKey).
+export function resolveStripeAccount(cfg, name) {
+  const s = cfg.stripe || {}
+  if (!s.accounts || Object.keys(s.accounts).length === 0) {
+    const secretKey = s.secretKey
+    if (!secretKey) fail('config.json: nenhuma conta Stripe configurada.')
+    return { name: 'default', label: '(conta única)', secretKey, publishableKey: s.publishableKey, mode: secretKey.includes('_test_') ? 'test' : 'live' }
+  }
+  const argAcct = (process.argv.find((a) => a.startsWith('--account=')) || '').split('=')[1]
+  const pick = name || process.env.SAAS_ACCOUNT || argAcct || s.defaultAccount || Object.keys(s.accounts)[0]
+  const a = s.accounts[pick]
+  if (!a) fail(`Conta Stripe "${pick}" não existe. Disponíveis: ${Object.keys(s.accounts).join(', ')}.`)
+  if (!a.secretKey || a.secretKey.includes('COLE')) fail(`config.json: stripe.accounts.${pick}.secretKey não preenchida.`)
+  return { name: pick, label: a.label || pick, secretKey: a.secretKey, publishableKey: a.publishableKey, mode: a.mode || (a.secretKey.includes('_test_') ? 'test' : 'live') }
+}
+
+// Imprime de forma padronizada qual conta/chave está sendo usada (transparência).
+export function announceAccount(acct) {
+  const tag = acct.mode === 'test' ? 'TEST 🧪' : 'LIVE 🔴'
+  console.log(`\n🏦 Conta Stripe: ${acct.label} [${acct.name}] · ${tag}`)
+  console.log(`   chave: ${maskKey(acct.secretKey)}${acct.publishableKey ? ' · pub: ' + maskKey(acct.publishableKey) : ''}\n`)
 }
 
 export function loadPlans() {

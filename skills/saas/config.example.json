@@ -1,8 +1,23 @@
 {
   "appName": "meu-saas",
+  "category": "Ferramentas",
   "siteUrl": "https://meu-saas.vercel.app",
   "stripe": {
-    "secretKey": "rk_live_ou_sk_live_COLE_AQUI",
+    "defaultAccount": "principal",
+    "accounts": {
+      "principal": {
+        "label": "Minha Empresa (conta principal)",
+        "secretKey": "rk_live_ou_sk_live_COLE_AQUI",
+        "publishableKey": "pk_live_COLE_AQUI",
+        "mode": "live"
+      },
+      "outra-empresa": {
+        "label": "Outra Empresa",
+        "secretKey": "sk_test_COLE_AQUI",
+        "publishableKey": "pk_test_COLE_AQUI",
+        "mode": "test"
+      }
+    },
     "trialDays": 7,
     "currency": "brl",
     "locale": "pt-BR"
@@ -31,5 +46,6 @@
       "invoice.payment_failed",
       "charge.refunded"
     ]
-  }
+  },
+  "_nota": "Multi-conta: cada chave em stripe.accounts.<nome>. Escolha com --account=<nome>, env SAAS_ACCOUNT=<nome>, ou stripe.defaultAccount. Compatível também com o formato antigo de conta única (stripe.secretKey). NUNCA commite este arquivo preenchido."
 }

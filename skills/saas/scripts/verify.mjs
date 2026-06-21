@@ -1,17 +1,18 @@
 // Valida credenciais e conectividade antes do bootstrap.
-import { loadConfig, stripe, supabaseProject, step, ok, info, fail } from './lib.mjs'
+import { loadConfig, resolveStripeAccount, announceAccount, stripe, supabaseProject, step, ok, info, fail } from './lib.mjs'
 
 const cfg = loadConfig()
+const acctCfg = resolveStripeAccount(cfg)
+announceAccount(acctCfg)
 
 step('Verificando Stripe…')
 try {
-  const acct = await stripe(cfg.stripe.secretKey, 'GET', '/account')
+  const acct = await stripe(acctCfg.secretKey, 'GET', '/account')
   ok(`Stripe OK — conta ${acct.id} (${acct.settings?.dashboard?.display_name || acct.email || 'sem nome'})`)
-  info(`Modo: ${cfg.stripe.secretKey.includes('_live_') ? 'LIVE' : 'TEST'} · moeda padrão ${acct.default_currency || '?'}`)
+  info(`Modo: ${acctCfg.mode.toUpperCase()} · moeda padrão ${acct.default_currency || '?'}`)
 } catch (e) {
-  // GET /account às vezes não é coberto por restricted keys; tenta listar produtos
   try {
-    await stripe(cfg.stripe.secretKey, 'GET', '/products?limit=1')
+    await stripe(acctCfg.secretKey, 'GET', '/products?limit=1')
     ok('Stripe OK (via /products) — chave válida.')
   } catch (e2) {
     fail(`Stripe inválida: ${e2.message}`)
